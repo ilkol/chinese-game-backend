@@ -3,6 +3,8 @@ package main
 import (
 	"chinese-game-backend/internal/config"
 	"chinese-game-backend/internal/repository"
+	"chinese-game-backend/internal/service"
+	handlers "chinese-game-backend/internal/transport/http"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,26 +20,33 @@ func main() {
 		log.Fatalf("Миграции БД провалены: %v", err)
 	}
 
-	_, err := repository.NewDBConnection(cfg.DB_User, cfg.DB_Pass, cfg.DB_Host, cfg.DB_Port, cfg.DB_Name)
+	db, err := repository.NewDBConnection(cfg.DB_User, cfg.DB_Pass, cfg.DB_Host, cfg.DB_Port, cfg.DB_Name)
 
 	if err != nil {
 		log.Fatalf("Ошибка инициализации БД: %v", err)
 	}
 	log.Println("БД подключена")
 
-	// userRepo := repository.NewUserRepository(db)
-	// userService := service.NewUserService(userRepo)
+	userRepo := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	authHandler := handlers.NewAuthHandler(userService)
 
 	router := chi.NewRouter()
 
-	router.Get("/api/status", func(w http.ResponseWriter, req *http.Request) {
-		w.Write([]byte("ok"))
+	router.Route("/api", func(r chi.Router) {
+		r.Route("/auth", func(r chi.Router) {
+			r.Post("/register", authHandler.Register)
+		})
+		r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			w.Write([]byte("ok"))
+		})
 	})
 
 	port := cfg.Port
 
-	fmt.Printf("Запуск сервера на порте: %s", cfg.Port)
+	fmt.Printf("Запуск сервера на порте: %s\n", cfg.Port)
 	if err := http.ListenAndServe(":"+port, router); err != nil {
-		log.Fatalf("Error: %s\n", err)
+		log.Fatalf("%s\n", err)
 	}
 }
