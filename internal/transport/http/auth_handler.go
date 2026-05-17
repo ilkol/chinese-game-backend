@@ -2,8 +2,6 @@ package http
 
 import (
 	"chinese-game-backend/internal/service"
-	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -25,8 +23,8 @@ func NewAuthHandler(services *service.UserService) *AuthHandler {
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	var input SignUpInput
 
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
+	if err := readJSON(r, &input); err != nil {
+		errorJSON(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
@@ -34,19 +32,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			if pgErr.Code == "23505" {
-				w.Header().Set("Content-Type", "application/json")
-				w.WriteHeader(http.StatusConflict)
-				w.Write([]byte(`{"error": "user_already_exists"}`))
+				errorJSON(w, http.StatusConflict, "user_already_exists")
 				return
 			}
 		}
 
-		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
+		errorJSON(w, http.StatusInternalServerError, "internal_error")
 		return
 	}
 
-	w.WriteHeader(http.StatusCreated)
-	w.Write([]byte(`{"message": "user created"}`))
+	writeJSON(w, http.StatusCreated, map[string]string{"message": "user created"})
 }
 
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
@@ -55,21 +50,16 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		Password string `json:"password"`
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
-		http.Error(w, "invalid input", http.StatusBadRequest)
+	if err := readJSON(r, &input); err != nil {
+		errorJSON(w, http.StatusBadRequest, "Invalid request body")
 		return
 	}
 
 	token, err := h.services.SignIn(input.Username, input.Password)
 	if err != nil {
-		fmt.Printf("%v", err)
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte(`{"error": "unauthorized"}`))
+		errorJSON(w, http.StatusUnauthorized, "unauthorized")
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{
-		"token": token,
-	})
+	writeJSON(w, http.StatusOK, map[string]string{"token": token})
 }
