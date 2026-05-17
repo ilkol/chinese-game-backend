@@ -2,15 +2,23 @@ package main
 
 import (
 	"chinese-game-backend/internal/config"
+	"chinese-game-backend/internal/repository"
 	"fmt"
+	"log"
 	"net/http"
-	"os"
 
 	"github.com/go-chi/chi/v5"
 )
 
 func main() {
 	cfg := config.Load()
+
+	_, err := repository.NewDBConnection(cfg.DB_User, cfg.DB_Pass, cfg.DB_Host, cfg.DB_Port, cfg.DB_Name)
+
+	if err != nil {
+		log.Fatalf("Ошибка инициализации БД: %v", err)
+	}
+	log.Println("БД подключена")
 
 	router := chi.NewRouter()
 
@@ -20,10 +28,8 @@ func main() {
 
 	port := cfg.Port
 
-	fmt.Printf("Start server")
-
+	fmt.Printf("Запуск сервера на порте: %s", cfg.Port)
 	if err := http.ListenAndServe(":"+port, router); err != nil {
-		fmt.Printf("Error: %s\n", err)
-		os.Exit(1)
+		log.Fatalf("Error: %s\n", err)
 	}
 }
