@@ -13,12 +13,20 @@ import (
 func main() {
 	cfg := config.Load()
 
+	dbURL := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.DB_User, cfg.DB_Pass, cfg.DB_Host, cfg.DB_Port, cfg.DB_Name)
+	if err := repository.RunMigrations(dbURL); err != nil {
+		log.Fatalf("Миграции БД провалены: %v", err)
+	}
+
 	_, err := repository.NewDBConnection(cfg.DB_User, cfg.DB_Pass, cfg.DB_Host, cfg.DB_Port, cfg.DB_Name)
 
 	if err != nil {
 		log.Fatalf("Ошибка инициализации БД: %v", err)
 	}
 	log.Println("БД подключена")
+
+	// userRepo := repository.NewUserRepository(db)
+	// userService := service.NewUserService(userRepo)
 
 	router := chi.NewRouter()
 
