@@ -1,6 +1,7 @@
 package main
 
 import (
+	"chinese-game-backend/internal/config"
 	"fmt"
 	"net/http"
 	"os"
@@ -9,13 +10,15 @@ import (
 )
 
 func main() {
+	cfg := config.Load()
+
 	router := chi.NewRouter()
 
 	router.Get("/api/status", func(w http.ResponseWriter, req *http.Request) {
 		w.Write([]byte("ok"))
 	})
 
-	port := "8080"
+	port := cfg.Port
 
 	fmt.Printf("Start server")
 
