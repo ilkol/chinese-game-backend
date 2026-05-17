@@ -3,6 +3,7 @@ package http
 import (
 	"chinese-game-backend/internal/service"
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -46,4 +47,29 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusCreated)
 	w.Write([]byte(`{"message": "user created"}`))
+}
+
+func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
+	var input struct {
+		Username string `json:"username"`
+		Password string `json:"password"`
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&input); err != nil {
+		http.Error(w, "invalid input", http.StatusBadRequest)
+		return
+	}
+
+	token, err := h.services.SignIn(input.Username, input.Password)
+	if err != nil {
+		fmt.Printf("%v", err)
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte(`{"error": "unauthorized"}`))
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": token,
+	})
 }

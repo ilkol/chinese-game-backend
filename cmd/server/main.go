@@ -28,7 +28,7 @@ func main() {
 	log.Println("БД подключена")
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo)
+	userService := service.NewUserService(userRepo, cfg.JWTSecret)
 	authHandler := handlers.NewAuthHandler(userService)
 
 	router := chi.NewRouter()
@@ -36,6 +36,7 @@ func main() {
 	router.Route("/api", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {
 			r.Post("/register", authHandler.Register)
+			r.Post("/login", authHandler.Login)
 		})
 		r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
