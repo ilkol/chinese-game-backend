@@ -4,6 +4,8 @@ import (
 	"chinese-game-backend/internal/service"
 	"encoding/json"
 	"net/http"
+
+	"github.com/lib/pq"
 )
 
 type SignUpInput struct {
@@ -29,7 +31,16 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 
 	err := h.services.SignUp(input.Username, input.Password)
 	if err != nil {
-		http.Error(w, "failed to create user: "+err.Error(), http.StatusInternalServerError)
+		if pgErr, ok := err.(*pq.Error); ok {
+			if pgErr.Code == "23505" {
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusConflict)
+				w.Write([]byte(`{"error": "user_already_exists"}`))
+				return
+			}
+		}
+
+		http.Error(w, "Внутренняя ошибка сервера", http.StatusInternalServerError)
 		return
 	}
 
