@@ -6,7 +6,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang-jwt/jwt"
+	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -17,6 +17,10 @@ type UserService struct {
 
 func NewUserService(repo *repository.UserRepository, jwtSecret string) *UserService {
 	return &UserService{repo, jwtSecret}
+}
+
+func (s *UserService) GetSecret() string {
+	return s.jwtSecret
 }
 
 func (s *UserService) SignUp(username, password string) error {

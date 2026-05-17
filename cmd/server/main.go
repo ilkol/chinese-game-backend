@@ -38,9 +38,18 @@ func main() {
 			r.Post("/register", authHandler.Register)
 			r.Post("/login", authHandler.Login)
 		})
+
 		r.Get("/status", func(w http.ResponseWriter, r *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Write([]byte("ok"))
+		})
+
+		r.Group(func(r chi.Router) {
+			r.Use(authHandler.UserIdentity)
+
+			r.Get("/levels", func(w http.ResponseWriter, r *http.Request) {
+				w.Write([]byte("Levels"))
+			})
 		})
 	})
 
