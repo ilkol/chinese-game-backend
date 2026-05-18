@@ -10,6 +10,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -39,6 +40,9 @@ func main() {
 	levelHandler := handlers.NewLevelHandler(levelService, progressService)
 
 	router := chi.NewRouter()
+
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 
 	router.Route("/api", func(r chi.Router) {
 		r.Route("/auth", func(r chi.Router) {
