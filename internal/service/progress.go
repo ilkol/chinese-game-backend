@@ -9,3 +9,7 @@ type ProgressService struct {
 func NewProgressRepository(repo *repository.ProgressRepository) *ProgressService {
 	return &ProgressService{repo}
 }
+
+func (s *ProgressService) CompleteStep(userID, stepID int) error {
+	return s.repo.CompleteStep(userID, stepID)
+}

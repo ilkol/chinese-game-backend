@@ -1,8 +1,6 @@
 package repository
 
 import (
-	"encoding/json"
-
 	"github.com/jmoiron/sqlx"
 )
 
@@ -10,20 +8,17 @@ type ProgressRepository struct {
 	db *sqlx.DB
 }
 
-func NewProgressREpository(db *sqlx.DB) *ProgressRepository {
+func NewProgressRepository(db *sqlx.DB) *ProgressRepository {
 	return &ProgressRepository{db}
 }
 
-func (r *ProgressRepository) UpdateProgress(userID, levelID int, details json.RawMessage) error {
+func (r *ProgressRepository) CompleteStep(userID, stepID int) error {
 	query := `
-		INSERT INTO progress 
-		(user_id, level_id, details, is_completed) VALUES ($1, $1, $1, $1)
-		ON CONFLICT (user_id, level_id)
-		DO UPDATE SET 
-			details = EXCLUDED.details, 
-			is_completed = EXCLUDED.is_completed, 
-			updated_at = NOW()
+		INSERT INTO user_progress 
+		(user_id, step_id, is_completed) VALUES ($1, $2, true)
+		ON CONFLICT (user_id, step_id)
+		DO UPDATE SET is_completed = true, updated_at = NOW()
 	`
-	_, err := r.db.Exec(query, userID, levelID, details, false)
+	_, err := r.db.Exec(query, userID, stepID)
 	return err
 }

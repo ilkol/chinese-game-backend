@@ -28,13 +28,15 @@ func main() {
 	log.Println("БД подключена")
 
 	userRepo := repository.NewUserRepository(db)
-	userService := service.NewUserService(userRepo, cfg.JWTSecret)
-
 	levelRepo := repository.NewLevelRepository(db)
+	progressRepo := repository.NewProgressRepository(db)
+
+	userService := service.NewUserService(userRepo, cfg.JWTSecret)
 	levelService := service.NewLevelService(levelRepo)
+	progressService := service.NewProgressRepository(progressRepo)
 
 	authHandler := handlers.NewAuthHandler(userService)
-	levelHandler := handlers.NewLevelHandler(levelService)
+	levelHandler := handlers.NewLevelHandler(levelService, progressService)
 
 	router := chi.NewRouter()
 
@@ -54,6 +56,8 @@ func main() {
 
 			r.Get("/level", levelHandler.GetAll)
 			r.Get("/level/{id}", levelHandler.GetByID)
+
+			r.Post("/progress", levelHandler.CompleteStep)
 		})
 	})
 	port := cfg.Port
