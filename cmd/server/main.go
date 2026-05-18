@@ -5,9 +5,14 @@ import (
 	"chinese-game-backend/internal/repository"
 	"chinese-game-backend/internal/service"
 	handlers "chinese-game-backend/internal/transport/http"
+	"context"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
@@ -64,10 +69,35 @@ func main() {
 			r.Post("/progress", levelHandler.CompleteStep)
 		})
 	})
-	port := cfg.Port
 
-	fmt.Printf("Запуск сервера на порте: %s\n", cfg.Port)
-	if err := http.ListenAndServe(":"+port, router); err != nil {
-		log.Fatalf("%s\n", err)
+	srv := &http.Server{
+		Addr:    ":" + cfg.Port,
+		Handler: router,
 	}
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
+
+	go func() {
+		log.Printf("Запуск сервера на порте: %s\n", cfg.Port)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("%s\n", err)
+		}
+	}()
+
+	<-quit
+	log.Println("Остановка сервера...")
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	if err := srv.Shutdown(ctx); err != nil {
+		log.Fatalf("Сервер завершает работу с ошибкой: %v", err)
+	}
+
+	log.Println("Закрытие соединение с БД...")
+	if err := db.Close(); err != nil {
+		log.Printf("Ошибка закрытия соединения: %v", err)
+	}
+
+	log.Println("Сервер завершил работу")
 }
