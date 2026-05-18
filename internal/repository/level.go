@@ -23,3 +23,30 @@ func (r *LevelRepository) GetAll() ([]domain.Level, error) {
 	}
 	return levels, nil
 }
+
+func (r *LevelRepository) GetByID(levelID, userID int) (domain.Level, error) {
+	query := "SELECT * FROM levels WHERE id=$1"
+	var level domain.Level
+	err := r.db.Get(&level, query, levelID)
+	if err != nil {
+		return domain.Level{}, err
+	}
+
+	query = `
+		SELECT 
+			s.*,
+			COALESCE(p.is_completed, false) as is_completed
+		FROM level_steps s
+		LEFT JOIN user_progress p ON s.id = p.step_id AND p.user_id = $2
+		WHERE level_id=$1
+		ORDER BY s.order_index ASC
+	`
+	var steps []domain.LevelStep
+	err = r.db.Select(&steps, query, levelID, userID)
+	if err != nil {
+		return domain.Level{}, err
+	}
+
+	level.Steps = steps
+	return level, nil
+}

@@ -52,10 +52,10 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(authHandler.UserIdentity)
 
-			r.Get("/levels", levelHandler.GetAll)
+			r.Get("/level", levelHandler.GetAll)
+			r.Get("/level/{id}", levelHandler.GetByID)
 		})
 	})
-
 	port := cfg.Port
 
 	fmt.Printf("Запуск сервера на порте: %s\n", cfg.Port)

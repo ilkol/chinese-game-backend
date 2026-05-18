@@ -16,3 +16,7 @@ func NewLevelService(repo *repository.LevelRepository) *LevelService {
 func (s *LevelService) GetAll() ([]domain.Level, error) {
 	return s.repo.GetAll()
 }
+
+func (s *LevelService) GetByID(levelID, userID int) (domain.Level, error) {
+	return s.repo.GetByID(levelID, userID)
+}

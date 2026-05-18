@@ -32,10 +32,29 @@ type User struct {
 }
 
 type Level struct {
-	ID        int             `json:"id" db:"id"`
-	Title     string          `json:"title" db:"title"`
-	Color     string          `json:"color" db:"color"`
-	Icon      string          `json:"icon" db:"icon"`
-	Blocks    json.RawMessage `json:"blocks" db:"blocks"`
-	CreatedAt time.Time       `json:"created_at" db:"created_at"`
+	ID         int         `json:"id" db:"id"`
+	Title      string      `json:"title" db:"title"`
+	Color      string      `json:"color" db:"color"`
+	Icon       string      `json:"icon" db:"icon"`
+	OrderIndex int         `json:"order_index" db:"order_index"`
+	Steps      []LevelStep `json:"steps"`
+	CreatedAt  time.Time   `json:"created_at" db:"created_at"`
+}
+
+type LevelStepType string
+
+const (
+	LevelStepThoery LevelStepType = "theory"
+	LevelStepQuiz   LevelStepType = "quiz"
+	LevelStepFinal  LevelStepType = "final"
+)
+
+type LevelStep struct {
+	ID          int             `json:"id" db:"id"`
+	LevelID     int             `json:"level_id" db:"level_id"`
+	Type        LevelStepType   `json:"type" db:"type"`
+	Title       string          `json:"title" db:"title"`
+	OrderIndex  int             `json:"order_index" db:"order_index"`
+	Content     json.RawMessage `json:"content" db:"content"`
+	IsCompleted bool            `json:"is_completed" db:"is_completed"`
 }
