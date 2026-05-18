@@ -22,3 +22,8 @@
 
 ## API endpoints
 - `GET api/status` - Проверка работоспособности cервера
+
+- `POST api/auth/register` - Запрос на регистрацию пользователя
+- `POST api/auth/login` - Запрос на авторизацию пользователя
+
+- `GET api/levels` - Получение списка всех уровней

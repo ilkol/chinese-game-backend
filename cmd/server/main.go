@@ -29,7 +29,12 @@ func main() {
 
 	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo, cfg.JWTSecret)
+
+	levelRepo := repository.NewLevelRepository(db)
+	levelService := service.NewLevelService(levelRepo)
+
 	authHandler := handlers.NewAuthHandler(userService)
+	levelHandler := handlers.NewLevelHandler(levelService)
 
 	router := chi.NewRouter()
 
@@ -47,9 +52,7 @@ func main() {
 		r.Group(func(r chi.Router) {
 			r.Use(authHandler.UserIdentity)
 
-			r.Get("/levels", func(w http.ResponseWriter, r *http.Request) {
-				w.Write([]byte("Levels"))
-			})
+			r.Get("/levels", levelHandler.GetAll)
 		})
 	})
 

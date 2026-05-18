@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"encoding/json"
 	"errors"
 	"time"
 )
@@ -28,4 +29,13 @@ type User struct {
 	Role         UserRole  `json:"role" db:"role"`
 	Coins        int       `json:"coins" db:"coins"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+}
+
+type Level struct {
+	ID        int             `json:"id" db:"id"`
+	Title     string          `json:"title" db:"title"`
+	Color     string          `json:"color" db:"color"`
+	Icon      string          `json:"icon" db:"icon"`
+	Blocks    json.RawMessage `json:"blocks" db:"blocks"`
+	CreatedAt time.Time       `json:"created_at" db:"created_at"`
 }
