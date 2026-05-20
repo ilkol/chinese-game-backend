@@ -7,7 +7,7 @@ import (
 	"github.com/lib/pq"
 )
 
-type SignUpInput struct {
+type signUpInput struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -20,8 +20,22 @@ func NewAuthHandler(services *service.UserService) *AuthHandler {
 	return &AuthHandler{services: services}
 }
 
+type loginResponse struct {
+	Token string `json:"token"`
+}
+
+// Register godoc
+// @Summary Register a new user
+// @Description Create a new user account with student role
+// @Tags auth
+// @Param	input	body 		signUpInput true "User credentials"
+// @Success	201		{object}	loginResponse
+// @Failure	400		{object}	ErrorResponse
+// @Failure	409		{object}	ErrorResponse
+// @Failure	500		{object}	ErrorResponse
+// @Router	/auth/register [post]
 func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
-	var input SignUpInput
+	var input signUpInput
 
 	if err := readJSON(r, &input); err != nil {
 		errorJSON(w, http.StatusBadRequest, "Invalid request body")
@@ -44,11 +58,17 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]string{"message": "user created"})
 }
 
+// Login godoc
+// @Summary Login user
+// @Description Create a JWT token for user
+// @Tags auth
+// @Param	input	body 		signUpInput true "User credentials"
+// @Success	200		{object}	loginResponse
+// @Failure	400		{object}	ErrorResponse
+// @Failure	401		{object}	ErrorResponse
+// @Router	/auth/login [post]
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
-	}
+	var input signUpInput
 
 	if err := readJSON(r, &input); err != nil {
 		errorJSON(w, http.StatusBadRequest, "Invalid request body")

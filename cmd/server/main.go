@@ -6,6 +6,13 @@ import (
 	"log"
 )
 
+// @title Chinese Game API
+// @description API for web game for learning Chinese
+// @host localhost:5000
+// @BasePAth /api
+// @securityDefinitions.apikey ApiKeyAuth
+// @in                         header
+// @name                       Authorization
 func main() {
 	cfg := config.Load()
 

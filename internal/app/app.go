@@ -18,6 +18,10 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jmoiron/sqlx"
 	"github.com/rs/cors"
+
+	httpSwagger "github.com/swaggo/http-swagger"
+
+	_ "chinese-game-backend/docs"
 )
 
 type App struct {
@@ -86,6 +90,8 @@ func (app *App) Run() error {
 			r.Post("/progress", levelHandler.CompleteStep)
 		})
 	})
+
+	router.Get("/swagger/*", httpSwagger.WrapHandler)
 
 	return app.startHTPPServer(router)
 }

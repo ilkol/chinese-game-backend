@@ -1,0 +1,87 @@
+basePath: /api
+definitions:
+  internal_transport_http.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  internal_transport_http.loginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  internal_transport_http.signUpInput:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+host: localhost:5000
+info:
+  contact: {}
+  description: API for web game for learning Chinese
+  title: Chinese Game API
+paths:
+  /auth/login:
+    post:
+      description: Create a JWT token for user
+      parameters:
+      - description: User credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http.signUpInput'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_transport_http.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Login user
+      tags:
+      - auth
+  /auth/register:
+    post:
+      description: Create a new user account with student role
+      parameters:
+      - description: User credentials
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http.signUpInput'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_transport_http.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Register a new user
+      tags:
+      - auth
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
