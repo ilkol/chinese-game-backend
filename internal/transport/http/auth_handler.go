@@ -8,8 +8,9 @@ import (
 )
 
 type signUpInput struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username   string `json:"username"`
+	Password   string `json:"password"`
+	InviteCode string `json:"invite_code"`
 }
 
 type AuthHandler struct {
@@ -42,7 +43,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.services.SignUp(input.Username, input.Password)
+	err := h.services.SignUp(input.Username, input.Password, input.InviteCode)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			if pgErr.Code == "23505" {

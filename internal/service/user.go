@@ -23,19 +23,23 @@ func (s *UserService) GetSecret() string {
 	return s.jwtSecret
 }
 
-func (s *UserService) SignUp(username, password string) error {
+func (s *UserService) SignUp(username, password, inviteCode string) error {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
-	user := domain.User{
-		Username:     username,
-		PasswordHash: string(hash),
-		Role:         domain.RoleStudent,
+	if inviteCode == "" {
+		user := domain.User{
+			Username:     username,
+			PasswordHash: string(hash),
+			Role:         domain.RoleStudent,
+		}
+
+		return s.repo.CreateUser(user)
 	}
 
-	return s.repo.CreateUser(user)
+	return s.repo.CreateTeacher(username, string(hash), inviteCode)
 }
 
 func (s *UserService) SignIn(username, password string) (string, error) {
