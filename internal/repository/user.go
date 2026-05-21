@@ -73,3 +73,16 @@ func (r *UserRepository) JoinStudentToTeacher(studentID int, inviteCode string) 
 	_, err = r.db.Exec(query, teacher.ID, studentID)
 	return err
 }
+
+func (r *UserRepository) GetStudentByTeacher(teacherID int) ([]domain.User, error) {
+	query := `
+		SELECT u.* 
+		FROM users u
+		JOIN teacher_students ts ON u.id = ts.student_id
+		WHERE ts.teacher_id = $1
+		ORDER BY u.username ASC
+	`
+	var students []domain.User
+	err := r.db.Select(&students, query, teacherID)
+	return students, err
+}

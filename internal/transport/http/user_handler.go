@@ -31,3 +31,14 @@ func (h *UserHandler) JoinStudentToTeacher(w http.ResponseWriter, r *http.Reques
 
 	writeJSON(w, http.StatusOK, map[string]string{"status": "joined"})
 }
+
+func (h *UserHandler) GetMyStudents(w http.ResponseWriter, r *http.Request) {
+	teacherID := r.Context().Value(userContextKey).(int)
+
+	students, err := h.service.GetStudentByTeacher(teacherID)
+	if err != nil {
+		errorJSON(w, http.StatusInternalServerError, "cannot_find_students")
+	}
+
+	writeJSON(w, http.StatusOK, students)
+}

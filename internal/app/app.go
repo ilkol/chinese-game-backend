@@ -99,6 +99,8 @@ func (app *App) Run() error {
 
 			r.Group(func(r chi.Router) {
 				r.Use(authHandler.CheckRole(domain.RoleTeacher))
+
+				r.Get("/teacher/students", userHandler.GetMyStudents)
 			})
 		})
 	})

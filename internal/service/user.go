@@ -65,3 +65,7 @@ func (s *UserService) SignIn(username, password string) (string, error) {
 func (s *UserService) JoinStudentToTeacher(studentID int, inviteCode string) error {
 	return s.repo.JoinStudentToTeacher(studentID, inviteCode)
 }
+
+func (s *UserService) GetStudentByTeacher(teacherID int) ([]domain.User, error) {
+	return s.repo.GetStudentByTeacher(teacherID)
+}
