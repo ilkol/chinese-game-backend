@@ -1,9 +1,11 @@
 package http
 
 import (
+	"chinese-game-backend/internal/domain"
 	"context"
 	"fmt"
 	"net/http"
+	"slices"
 	"strings"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -56,4 +58,23 @@ func (h *AuthHandler) UserIdentity(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+func (h *AuthHandler) CheckRole(allowedRoles ...domain.UserRole) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			userRole, ok := r.Context().Value(roleContextKey).(domain.UserRole)
+			if !ok {
+				errorJSON(w, http.StatusForbidden, "role_not_found")
+				return
+			}
+
+			if !slices.Contains(allowedRoles, userRole) {
+				errorJSON(w, http.StatusForbidden, "insufficient_privileges")
+				return
+			}
+
+			next.ServeHTTP(w, r)
+		})
+	}
 }
