@@ -11,7 +11,10 @@ import (
 
 type conextKey string
 
-const userContextKey conextKey = "user_id"
+const (
+	userContextKey conextKey = "user_id"
+	roleContextKey conextKey = "user_role"
+)
 
 func (h *AuthHandler) UserIdentity(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -47,7 +50,9 @@ func (h *AuthHandler) UserIdentity(next http.Handler) http.Handler {
 		}
 
 		userID := int(claims["user_id"].(float64))
+		userRole := claims["role"].(string)
 		ctx := context.WithValue(r.Context(), userContextKey, userID)
+		ctx = context.WithValue(r.Context(), roleContextKey, userRole)
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
