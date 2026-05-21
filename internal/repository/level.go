@@ -16,7 +16,7 @@ func NewLevelRepository(db *sqlx.DB) *LevelRepository {
 
 func (r *LevelRepository) GetAll() ([]domain.Level, error) {
 	query := "SELECT * FROM levels"
-	var levels []domain.Level
+	levels := make([]domain.Level, 0)
 	err := r.db.Select(&levels, query)
 	if err != nil {
 		return nil, err

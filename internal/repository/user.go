@@ -3,6 +3,7 @@ package repository
 import (
 	"chinese-game-backend/internal/domain"
 	"errors"
+	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -82,7 +83,8 @@ func (r *UserRepository) GetStudentByTeacher(teacherID int) ([]domain.User, erro
 		WHERE ts.teacher_id = $1
 		ORDER BY u.username ASC
 	`
-	var students []domain.User
+	students := make([]domain.User, 0)
 	err := r.db.Select(&students, query, teacherID)
+	fmt.Println(students, err)
 	return students, err
 }
