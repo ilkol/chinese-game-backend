@@ -57,6 +57,7 @@ func (app *App) Run() error {
 
 	authHandler := handlers.NewAuthHandler(userService)
 	levelHandler := handlers.NewLevelHandler(levelService, progressService)
+	userHandler := handlers.NewUserHandler(userService)
 
 	router := chi.NewRouter()
 
@@ -89,6 +90,12 @@ func (app *App) Run() error {
 			r.Get("/level/{id}", levelHandler.GetByID)
 
 			r.Post("/progress", levelHandler.CompleteStep)
+
+			r.Group(func(r chi.Router) {
+				r.Use(authHandler.CheckRole(domain.RoleStudent))
+
+				r.Post("/user/join", userHandler.JoinStudentToTeacher)
+			})
 
 			r.Group(func(r chi.Router) {
 				r.Use(authHandler.CheckRole(domain.RoleTeacher))

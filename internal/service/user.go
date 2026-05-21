@@ -61,3 +61,7 @@ func (s *UserService) SignIn(username, password string) (string, error) {
 
 	return token.SignedString([]byte(s.jwtSecret))
 }
+
+func (s *UserService) JoinStudentToTeacher(studentID int, inviteCode string) error {
+	return s.repo.JoinStudentToTeacher(studentID, inviteCode)
+}

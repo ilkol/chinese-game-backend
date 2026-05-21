@@ -54,3 +54,22 @@ func (r *UserRepository) GetUserByName(username string) (domain.User, error) {
 	err := r.db.Get(&user, query, username)
 	return user, err
 }
+
+func (r *UserRepository) JoinStudentToTeacher(studentID int, inviteCode string) error {
+	query := "SELECT * FROM users WHERE invite_code = $1 LIMIT 1"
+	var teacher domain.User
+	err := r.db.Get(&teacher, query, inviteCode)
+	if err != nil {
+		return nil
+	}
+
+	query = `
+		INSERT INTO teacher_students
+		(teacher_id, student_id)
+		VALUES
+		($1, $2)
+		ON CONFLICT (teacher_id, student_id) DO NOTHING
+	`
+	_, err = r.db.Exec(query, teacher.ID, studentID)
+	return err
+}
