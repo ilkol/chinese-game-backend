@@ -54,7 +54,7 @@ func (h *AuthHandler) UserIdentity(next http.Handler) http.Handler {
 		userID := int(claims["user_id"].(float64))
 		userRole := claims["role"].(string)
 		ctx := context.WithValue(r.Context(), userContextKey, userID)
-		ctx = context.WithValue(r.Context(), roleContextKey, userRole)
+		ctx = context.WithValue(ctx, roleContextKey, domain.UserRole(userRole))
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
