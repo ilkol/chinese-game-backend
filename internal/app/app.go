@@ -65,7 +65,7 @@ func (app *App) Run() error {
 	router.Use(middleware.Recoverer)
 
 	router.Use(cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173", "http://http://z9128573.beget.tech/"},
+		AllowedOrigins:   []string{"http://localhost:5173", "http://z9128573.beget.tech"},
 		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type"},
 		AllowCredentials: true,
