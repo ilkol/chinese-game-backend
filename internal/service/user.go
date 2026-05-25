@@ -3,7 +3,6 @@ package service
 import (
 	"chinese-game-backend/internal/domain"
 	"chinese-game-backend/internal/repository"
-	"errors"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
@@ -45,12 +44,12 @@ func (s *UserService) SignUp(username, password, inviteCode string) error {
 func (s *UserService) SignIn(username, password string) (string, error) {
 	user, err := s.repo.GetUserByName(username)
 	if err != nil {
-		return "", errors.New("user not found")
+		return "", ErrUserNotFound
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password))
 	if err != nil {
-		return "", errors.New("invalid password")
+		return "", ErrInvalidUserPassword
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{

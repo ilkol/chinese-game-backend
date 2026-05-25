@@ -2,6 +2,7 @@ package http
 
 import (
 	"chinese-game-backend/internal/service"
+	"errors"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -78,7 +79,11 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	token, err := h.services.SignIn(input.Username, input.Password)
 	if err != nil {
-		errorJSON(w, http.StatusUnauthorized, "unauthorized")
+		if errors.Is(err, service.ErrInvalidUserPassword) || errors.Is(err, service.ErrUserNotFound) {
+			errorJSON(w, http.StatusUnauthorized, "invalid_credentials")
+		} else {
+			errorJSON(w, http.StatusInternalServerError, "internal_server_error")
+		}
 		return
 	}
 
