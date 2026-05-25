@@ -92,3 +92,10 @@ func (r *UserRepository) GetStudentByTeacher(teacherID int) ([]domain.User, erro
 	fmt.Println(students, err)
 	return students, err
 }
+
+func (r *UserRepository) GetInviteCode(teacherID int) (string, error) {
+	query := "SELECT * FROM users WHERE id = $1 LIMIT 1"
+	var user domain.User
+	err := r.db.Get(&user, query, teacherID)
+	return *user.InviteCode, err
+}

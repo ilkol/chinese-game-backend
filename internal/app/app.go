@@ -101,6 +101,7 @@ func (app *App) Run() error {
 				r.Use(authHandler.CheckRole(domain.RoleTeacher))
 
 				r.Get("/teacher/students", userHandler.GetMyStudents)
+				r.Get("/teacher/invite-code", userHandler.GetMyInviteCode)
 			})
 		})
 	})

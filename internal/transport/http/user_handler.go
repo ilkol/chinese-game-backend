@@ -42,3 +42,14 @@ func (h *UserHandler) GetMyStudents(w http.ResponseWriter, r *http.Request) {
 
 	writeJSON(w, http.StatusOK, students)
 }
+
+func (h *UserHandler) GetMyInviteCode(w http.ResponseWriter, r *http.Request) {
+	teacherID := r.Context().Value(userContextKey).(int)
+
+	code, err := h.service.GetInviteCode(teacherID)
+	if err != nil {
+		errorJSON(w, http.StatusInternalServerError, "cannot_find_teacher")
+	}
+
+	writeJSON(w, http.StatusOK, code)
+}

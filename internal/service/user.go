@@ -78,3 +78,7 @@ func (s *UserService) JoinStudentToTeacher(studentID int, inviteCode string) err
 func (s *UserService) GetStudentByTeacher(teacherID int) ([]domain.User, error) {
 	return s.repo.GetStudentByTeacher(teacherID)
 }
+
+func (s *UserService) GetInviteCode(teacherID int) (string, error) {
+	return s.repo.GetInviteCode(teacherID)
+}
