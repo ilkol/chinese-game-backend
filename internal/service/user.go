@@ -22,12 +22,13 @@ func (s *UserService) GetSecret() string {
 	return s.jwtSecret
 }
 
-func (s *UserService) SignUp(username, password, inviteCode string) error {
+func (s *UserService) SignUp(username, password, inviteCode string) (string, error) {
 	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return "", err
 	}
 
+	var user domain.User
 	if inviteCode == "" {
 		user := domain.User{
 			Username:     username,
@@ -35,10 +36,15 @@ func (s *UserService) SignUp(username, password, inviteCode string) error {
 			Role:         domain.RoleStudent,
 		}
 
-		return s.repo.CreateUser(user)
+		user, err = s.repo.CreateUser(user)
+	} else {
+		user, err = s.repo.CreateTeacher(username, string(hash), inviteCode)
 	}
 
-	return s.repo.CreateTeacher(username, string(hash), inviteCode)
+	if err != nil {
+		return "", err
+	}
+	return s.generateJWTToken(user)
 }
 
 func (s *UserService) SignIn(username, password string) (string, error) {
@@ -52,6 +58,10 @@ func (s *UserService) SignIn(username, password string) (string, error) {
 		return "", ErrInvalidUserPassword
 	}
 
+	return s.generateJWTToken(user)
+}
+
+func (s *UserService) generateJWTToken(user domain.User) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id":   user.ID,
 		"role":      user.Role,

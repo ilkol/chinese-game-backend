@@ -3,6 +3,7 @@ package http
 import (
 	"chinese-game-backend/internal/service"
 	"errors"
+	"log"
 	"net/http"
 
 	"github.com/lib/pq"
@@ -44,7 +45,7 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.services.SignUp(input.Username, input.Password, input.InviteCode)
+	token, err := h.services.SignUp(input.Username, input.Password, input.InviteCode)
 	if err != nil {
 		if pgErr, ok := err.(*pq.Error); ok {
 			if pgErr.Code == "23505" {
@@ -53,11 +54,12 @@ func (h *AuthHandler) Register(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		log.Println(err)
 		errorJSON(w, http.StatusInternalServerError, "internal_error")
 		return
 	}
 
-	writeJSON(w, http.StatusCreated, map[string]string{"message": "user created"})
+	writeJSON(w, http.StatusOK, map[string]string{"token": token})
 }
 
 // Login godoc
