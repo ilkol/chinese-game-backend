@@ -19,7 +19,9 @@ func NewLevelHandler(service *service.LevelService, progressStep *service.Progre
 }
 
 func (h *LevelHandler) GetAll(w http.ResponseWriter, r *http.Request) {
-	levels, err := h.levelService.GetAll()
+	withSteps := r.URL.Query().Get("with_steps") == "true"
+
+	levels, err := h.levelService.GetAll(withSteps)
 	if err != nil {
 		errorJSON(w, http.StatusInternalServerError, "failed to get levels")
 		return

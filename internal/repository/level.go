@@ -14,13 +14,31 @@ func NewLevelRepository(db *sqlx.DB) *LevelRepository {
 	return &LevelRepository{db}
 }
 
-func (r *LevelRepository) GetAll() ([]domain.Level, error) {
-	query := "SELECT * FROM levels"
+func (r *LevelRepository) GetAll(withSteps bool) ([]domain.Level, error) {
+	query := "SELECT * FROM levels ORDER BY order_index ASC"
 	levels := make([]domain.Level, 0)
 	err := r.db.Select(&levels, query)
 	if err != nil {
 		return nil, err
 	}
+
+	if withSteps {
+		var steps []domain.LevelStep
+		err = r.db.Select(&steps, "SELECT * FROM level_steps ORDER BY order_index ASC")
+		if err != nil {
+			return nil, err
+		}
+
+		stepMap := make(map[int][]domain.LevelStep)
+		for _, s := range steps {
+			stepMap[s.LevelID] = append(stepMap[s.LevelID], s)
+		}
+
+		for i := range levels {
+			levels[i].Steps = stepMap[levels[i].ID]
+		}
+	}
+
 	return levels, nil
 }
 
