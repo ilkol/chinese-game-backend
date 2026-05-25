@@ -29,7 +29,7 @@ type User struct {
 	Role         UserRole  `json:"role" db:"role"`
 	Coins        int       `json:"coins" db:"coins"`
 	CreatedAt    time.Time `json:"created_at" db:"created_at"`
-	InviteCode   string    `json:"invite_code" db:"invite_code"`
+	InviteCode   *string   `json:"invite_code" db:"invite_code"`
 }
 
 type Level struct {
