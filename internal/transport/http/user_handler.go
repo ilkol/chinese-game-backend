@@ -1,7 +1,9 @@
 package http
 
 import (
+	"chinese-game-backend/internal/repository"
 	"chinese-game-backend/internal/service"
+	"errors"
 	"net/http"
 )
 
@@ -26,7 +28,12 @@ func (h *UserHandler) JoinStudentToTeacher(w http.ResponseWriter, r *http.Reques
 	studentID := r.Context().Value(userContextKey).(int)
 
 	if err := h.service.JoinStudentToTeacher(studentID, input.InviteCode); err != nil {
-		errorJSON(w, http.StatusNotFound, "invalid_teacher_code")
+		if errors.Is(err, repository.ErrInvalidInviteCode) {
+			errorJSON(w, http.StatusNotFound, "invalid_teacher_code")
+			return
+		}
+		errorJSON(w, http.StatusInternalServerError, "invalid_teacher_code")
+		return
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"status": "joined"})

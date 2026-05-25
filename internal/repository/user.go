@@ -60,12 +60,14 @@ func (r *UserRepository) GetUserByName(username string) (domain.User, error) {
 	return user, err
 }
 
+var ErrInvalidInviteCode = errors.New("invalid invite code")
+
 func (r *UserRepository) JoinStudentToTeacher(studentID int, inviteCode string) error {
 	query := "SELECT * FROM users WHERE invite_code = $1 LIMIT 1"
 	var teacher domain.User
 	err := r.db.Get(&teacher, query, inviteCode)
 	if err != nil {
-		return nil
+		return ErrInvalidInviteCode
 	}
 
 	query = `
