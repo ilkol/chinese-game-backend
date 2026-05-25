@@ -59,3 +59,13 @@ type LevelStep struct {
 	Content     json.RawMessage `json:"content" db:"content"`
 	IsCompleted bool            `json:"is_completed" db:"is_completed"`
 }
+
+type StudentProgressInfo struct {
+	ID             int       `json:"id" db:"id"`
+	Username       string    `json:"username" db:"username"`
+	Coins          int       `json:"coins" db:"coins"`
+	LastLevelTitle string    `json:"lastLevelTitle" db:"last_level_title"`
+	CompletedSteps int       `json:"completedSteps" db:"completed_steps"`
+	TotalSteps     int       `json:"totalSteps" db:"total_steps"`
+	UpdatedAt      time.Time `json:"updatedAt" db:"updated_at"`
+}

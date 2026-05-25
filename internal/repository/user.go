@@ -3,7 +3,6 @@ package repository
 import (
 	"chinese-game-backend/internal/domain"
 	"errors"
-	"fmt"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -81,18 +80,40 @@ func (r *UserRepository) JoinStudentToTeacher(studentID int, inviteCode string) 
 	return err
 }
 
-func (r *UserRepository) GetStudentByTeacher(teacherID int) ([]domain.User, error) {
+func (r *UserRepository) GetStudentByTeacher(teacherID int) ([]domain.StudentProgressInfo, error) {
+	var result []domain.StudentProgressInfo
+
 	query := `
-		SELECT u.* 
-		FROM users u
-		JOIN teacher_students ts ON u.id = ts.student_id
-		WHERE ts.teacher_id = $1
-		ORDER BY u.username ASC
-	`
-	students := make([]domain.User, 0)
-	err := r.db.Select(&students, query, teacherID)
-	fmt.Println(students, err)
-	return students, err
+		WITH student_list AS (
+			SELECT u.id, u.username, u.coins 
+			FROM users u
+			JOIN teacher_students ts ON u.id = ts.student_id
+			WHERE ts.teacher_id = $1
+		),
+		max_progress AS (
+			SELECT DISTINCT ON (p.user_id)
+				p.user_id,
+				l.title as last_level_title,
+				(SELECT COUNT(*) FROM user_progress up WHERE up.user_id = p.user_id AND up.step_id IN (SELECT id FROM level_steps ls WHERE ls.level_id = l.id)) as completed_steps,
+				(SELECT COUNT(*) FROM level_steps ls WHERE ls.level_id = l.id) as total_steps,
+				p.updated_at
+			FROM user_progress p
+			JOIN level_steps s ON p.step_id = s.id
+			JOIN levels l ON s.level_id = l.id
+			ORDER BY p.user_id, l.order_index DESC, p.updated_at DESC
+		)
+		SELECT 
+			sl.*, 
+			COALESCE(mp.last_level_title, 'Не начато') as last_level_title,
+			COALESCE(mp.completed_steps, 0) as completed_steps,
+			COALESCE(mp.total_steps, 0) as total_steps,
+			mp.updated_at
+		FROM student_list sl
+		LEFT JOIN max_progress mp ON sl.id = mp.user_id
+		ORDER BY sl.username ASC`
+
+	err := r.db.Select(&result, query, teacherID)
+	return result, err
 }
 
 func (r *UserRepository) GetInviteCode(teacherID int) (string, error) {
