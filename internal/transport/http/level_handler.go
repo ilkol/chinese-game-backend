@@ -2,6 +2,7 @@ package http
 
 import (
 	"chinese-game-backend/internal/service"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -41,6 +42,7 @@ func (h *LevelHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 
 	level, err := h.levelService.GetByID(levelID, userID)
 	if err != nil {
+		fmt.Print(err)
 		errorJSON(w, http.StatusNotFound, "levevl not found")
 		return
 	}
