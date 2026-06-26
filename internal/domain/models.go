@@ -33,13 +33,14 @@ type User struct {
 }
 
 type Level struct {
-	ID         int         `json:"id" db:"id"`
-	Title      string      `json:"title" db:"title"`
-	Color      string      `json:"color" db:"color"`
-	Icon       string      `json:"icon" db:"icon"`
-	OrderIndex int         `json:"order_index" db:"order_index"`
-	Steps      []LevelStep `json:"steps"`
-	CreatedAt  time.Time   `json:"created_at" db:"created_at"`
+	ID            int         `json:"id" db:"id"`
+	Title         string      `json:"title" db:"title"`
+	Color         string      `json:"color" db:"color"`
+	Icon          string      `json:"icon" db:"icon"`
+	OrderIndex    int         `json:"order_index" db:"order_index"`
+	Steps         []LevelStep `json:"steps"`
+	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
+	BackgroundSrc string      `json:"background_src" db:"background_src"`
 }
 
 type LevelStepType string
