@@ -50,15 +50,23 @@ const (
 	LevelStepFinal  LevelStepType = "final"
 )
 
+type DialogStepItem struct {
+	Speaker string `json:"speaker,omitempty"`
+	Text    string `json:"text"`
+	Emotion string `json:"emotion,omitempty"`
+	Bg      string `json:"bg,omitempty"`
+}
+
 type LevelStep struct {
-	ID          int             `json:"id" db:"id"`
-	LevelID     int             `json:"level_id" db:"level_id"`
-	Type        LevelStepType   `json:"type" db:"type"`
-	Title       string          `json:"title" db:"title"`
-	OrderIndex  int             `json:"order_index" db:"order_index"`
-	Content     json.RawMessage `json:"content" db:"content"`
-	IsCompleted bool            `json:"is_completed" db:"is_completed"`
-	Description string          `json:"description" db:"description"`
+	ID          int              `json:"id" db:"id"`
+	LevelID     int              `json:"level_id" db:"level_id"`
+	Type        LevelStepType    `json:"type" db:"type"`
+	Title       string           `json:"title" db:"title"`
+	OrderIndex  int              `json:"order_index" db:"order_index"`
+	Content     json.RawMessage  `json:"content" db:"content"`
+	IsCompleted bool             `json:"is_completed" db:"is_completed"`
+	Description string           `json:"description" db:"description"`
+	Dialog      []DialogStepItem `json:"dialog,omitempty" db:"-"`
 }
 
 type StudentProgressInfo struct {

@@ -2,6 +2,7 @@ package repository
 
 import (
 	"chinese-game-backend/internal/domain"
+	"encoding/json"
 
 	"github.com/jmoiron/sqlx"
 )
@@ -23,15 +24,31 @@ func (r *LevelRepository) GetAll(withSteps bool) ([]domain.Level, error) {
 	}
 
 	if withSteps {
-		var steps []domain.LevelStep
-		err = r.db.Select(&steps, "SELECT * FROM level_steps ORDER BY order_index ASC")
+		type stepWithDialog struct {
+			domain.LevelStep
+			DialogSteps *string `db:"dialog_steps"`
+		}
+
+		var rows []stepWithDialog
+		err = r.db.Select(&rows, `
+        SELECT 
+            ls.*,
+            sd.steps::text AS dialog_steps
+        FROM level_steps ls
+        LEFT JOIN step_dialogs sd ON sd.step_id = ls.id
+        ORDER BY ls.order_index ASC
+    `)
 		if err != nil {
 			return nil, err
 		}
 
 		stepMap := make(map[int][]domain.LevelStep)
-		for _, s := range steps {
-			stepMap[s.LevelID] = append(stepMap[s.LevelID], s)
+		for _, row := range rows {
+			step := row.LevelStep
+			if row.DialogSteps != nil {
+				json.Unmarshal([]byte(*row.DialogSteps), &step.Dialog)
+			}
+			stepMap[step.LevelID] = append(stepMap[step.LevelID], step)
 		}
 
 		for i := range levels {
@@ -52,17 +69,33 @@ func (r *LevelRepository) GetByID(levelID, userID int) (domain.Level, error) {
 
 	query = `
 		SELECT 
-			s.*,
-			COALESCE(p.is_completed, false) as is_completed
-		FROM level_steps s
-		LEFT JOIN user_progress p ON s.id = p.step_id AND p.user_id = $2
-		WHERE level_id=$1
-		ORDER BY s.order_index ASC
+			ls.*,
+			COALESCE(p.is_completed, false) AS is_completed,
+			sd.steps::text AS dialog_steps
+		FROM level_steps ls
+		LEFT JOIN user_progress p ON ls.id = p.step_id AND p.user_id = $2
+		LEFT JOIN step_dialogs sd ON sd.step_id = ls.id
+		WHERE ls.level_id = $1
+		ORDER BY ls.order_index ASC
 	`
-	var steps []domain.LevelStep
-	err = r.db.Select(&steps, query, levelID, userID)
+	type stepWithDialog struct {
+		domain.LevelStep
+		DialogSteps *string `db:"dialog_steps"`
+	}
+
+	var rows []stepWithDialog
+	err = r.db.Select(&rows, query, levelID, userID)
 	if err != nil {
 		return domain.Level{}, err
+	}
+
+	steps := make([]domain.LevelStep, 0, len(rows))
+	for _, row := range rows {
+		step := row.LevelStep
+		if row.DialogSteps != nil {
+			json.Unmarshal([]byte(*row.DialogSteps), &step.Dialog)
+		}
+		steps = append(steps, step)
 	}
 
 	level.Steps = steps
