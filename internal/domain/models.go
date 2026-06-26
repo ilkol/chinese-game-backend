@@ -58,6 +58,7 @@ type LevelStep struct {
 	OrderIndex  int             `json:"order_index" db:"order_index"`
 	Content     json.RawMessage `json:"content" db:"content"`
 	IsCompleted bool            `json:"is_completed" db:"is_completed"`
+	Description string          `json:"description" db:"description"`
 }
 
 type StudentProgressInfo struct {
