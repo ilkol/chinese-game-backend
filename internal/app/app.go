@@ -53,10 +53,11 @@ func (app *App) Run() error {
 
 	userService := service.NewUserService(userRepo, app.Config.JWTSecret)
 	levelService := service.NewLevelService(levelRepo)
-	progressService := service.NewProgressRepository(progressRepo)
+	progressService := service.NewProgressService(progressRepo)
 
 	authHandler := handlers.NewAuthHandler(userService)
-	levelHandler := handlers.NewLevelHandler(levelService, progressService)
+	levelHandler := handlers.NewLevelHandler(levelService)
+	progressHandler := handlers.NewProgressHandler(progressService)
 	userHandler := handlers.NewUserHandler(userService)
 
 	router := chi.NewRouter()
@@ -89,7 +90,9 @@ func (app *App) Run() error {
 			r.Get("/level", levelHandler.GetAll)
 			r.Get("/level/{id}", levelHandler.GetByID)
 
-			r.Post("/progress", levelHandler.CompleteStep)
+			r.Post("/progress", progressHandler.CompleteStep)
+			r.Get("/progress/levels", progressHandler.GetCompletedLevels)
+			r.Get("/progress/levels/{level_id}", progressHandler.IsLevelCompleted)
 
 			r.Group(func(r chi.Router) {
 				r.Use(authHandler.CheckRole(domain.RoleStudent))

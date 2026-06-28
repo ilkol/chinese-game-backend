@@ -5,7 +5,6 @@ import (
 	"chinese-game-backend/internal/service"
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
 	"strconv"
 
@@ -14,11 +13,10 @@ import (
 
 type LevelHandler struct {
 	levelService *service.LevelService
-	progressStep *service.ProgressService
 }
 
-func NewLevelHandler(service *service.LevelService, progressStep *service.ProgressService) *LevelHandler {
-	return &LevelHandler{service, progressStep}
+func NewLevelHandler(service *service.LevelService) *LevelHandler {
+	return &LevelHandler{service}
 }
 
 func (h *LevelHandler) GetAll(w http.ResponseWriter, r *http.Request) {
@@ -50,27 +48,6 @@ func (h *LevelHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, level)
-}
-
-func (h *LevelHandler) CompleteStep(w http.ResponseWriter, r *http.Request) {
-	var input struct {
-		StepID int `json:"step_id"`
-	}
-
-	if err := readJSON(r, &input); err != nil {
-		errorJSON(w, http.StatusBadRequest, "invalid input")
-		return
-	}
-
-	userID := r.Context().Value(userContextKey).(int)
-
-	if err := h.progressStep.CompleteStep(userID, input.StepID); err != nil {
-		log.Println(err)
-		errorJSON(w, http.StatusInternalServerError, "failed to save progress")
-		return
-	}
-
-	writeJSON(w, http.StatusOK, map[string]string{"status": "success"})
 }
 
 func (h *LevelHandler) CreateStep(w http.ResponseWriter, r *http.Request) {
