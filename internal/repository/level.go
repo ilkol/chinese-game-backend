@@ -101,3 +101,51 @@ func (r *LevelRepository) GetByID(levelID, userID int) (domain.Level, error) {
 	level.Steps = steps
 	return level, nil
 }
+
+func (r *LevelRepository) CreateStep(levelID int, step domain.LevelStep) (domain.LevelStep, error) {
+	query := `
+		INSERT INTO level_steps (level_id, type, title, description, content, order_index)
+		VALUES ($1, $2, $3, $4, $5::jsonb, (
+			SELECT COALESCE(MAX(order_index), 0) + 1 FROM level_steps WHERE level_id = $1
+		))
+		RETURNING *
+	`
+	var created domain.LevelStep
+	err := r.db.Get(&created, query,
+		levelID, step.Type, step.Title, step.Description, []byte(step.Content),
+	)
+	return created, err
+}
+
+func (r *LevelRepository) UpdateStep(stepID int, step domain.LevelStep) error {
+	query := `
+		UPDATE level_steps
+		SET type = $1, title = $2, description = $3, content = $4::jsonb, order_index = $5
+		WHERE id = $6
+	`
+	_, err := r.db.Exec(query,
+		step.Type, step.Title, step.Description, []byte(step.Content), step.OrderIndex, stepID,
+	)
+	return err
+}
+
+func (r *LevelRepository) DeleteStep(stepID int) error {
+	_, err := r.db.Exec("DELETE FROM level_steps WHERE id = $1", stepID)
+	return err
+}
+
+func (r *LevelRepository) UpsertDialog(stepID int, steps json.RawMessage) error {
+	query := `
+		INSERT INTO step_dialogs (step_id, steps)
+		VALUES ($1, $2)
+		ON CONFLICT (step_id) DO UPDATE SET steps = $2, updated_at = NOW()
+	`
+	_, err := r.db.Exec(query, stepID, steps)
+	return err
+}
+
+func (r *LevelRepository) GetStepByID(stepID int) (domain.LevelStep, error) {
+	var step domain.LevelStep
+	err := r.db.Get(&step, "SELECT * FROM level_steps WHERE id = $1", stepID)
+	return step, err
+}

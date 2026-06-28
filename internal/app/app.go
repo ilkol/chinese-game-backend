@@ -103,6 +103,15 @@ func (app *App) Run() error {
 				r.Get("/teacher/students", userHandler.GetMyStudents)
 				r.Get("/teacher/invite-code", userHandler.GetMyInviteCode)
 			})
+
+			r.Group(func(r chi.Router) {
+				r.Use(authHandler.CheckRole(domain.RoleAdmin))
+
+				r.Post("/level/{id}/step", levelHandler.CreateStep)
+				r.Put("/level/{id}/step/{step_id}", levelHandler.UpdateStep)
+				r.Delete("/level/{id}/step/{step_id}", levelHandler.DeleteStep)
+				r.Put("/step/{step_id}/dialog", levelHandler.UpsertDialog)
+			})
 		})
 	})
 

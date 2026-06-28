@@ -46,9 +46,14 @@ type Level struct {
 type LevelStepType string
 
 const (
-	LevelStepThoery LevelStepType = "theory"
-	LevelStepQuiz   LevelStepType = "quiz"
-	LevelStepFinal  LevelStepType = "final"
+	LevelStepThoery      LevelStepType = "theory"
+	LevelStepQuiz        LevelStepType = "quiz"
+	LevelStepFinal       LevelStepType = "final"
+	LevelStepDialog      LevelStepType = "dialog"
+	LevelStepCategoriz   LevelStepType = "categorization"
+	LevelStepToneListen  LevelStepType = "tone_listening"
+	LevelStepPlanetClick LevelStepType = "planet_click"
+	LevelStepPlanetMatch LevelStepType = "planet_matching"
 )
 
 type DialogStepItem struct {

@@ -1,7 +1,9 @@
 package http
 
 import (
+	"chinese-game-backend/internal/domain"
 	"chinese-game-backend/internal/service"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -69,4 +71,86 @@ func (h *LevelHandler) CompleteStep(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeJSON(w, http.StatusOK, map[string]string{"status": "success"})
+}
+
+func (h *LevelHandler) CreateStep(w http.ResponseWriter, r *http.Request) {
+	idStr := chi.URLParam(r, "id")
+	levelID, err := strconv.Atoi(idStr)
+	if err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid level id")
+		return
+	}
+
+	var input domain.LevelStep
+	if err := readJSON(r, &input); err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid input")
+		return
+	}
+
+	step, err := h.levelService.CreateStep(levelID, input)
+	if err != nil {
+		errorJSON(w, http.StatusInternalServerError, "failed to create step")
+		return
+	}
+
+	writeJSON(w, http.StatusCreated, step)
+}
+
+func (h *LevelHandler) UpdateStep(w http.ResponseWriter, r *http.Request) {
+	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
+	if err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid step id")
+		return
+	}
+
+	var input domain.LevelStep
+	if err := readJSON(r, &input); err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid input")
+		return
+	}
+
+	if err := h.levelService.UpdateStep(stepID, input); err != nil {
+		errorJSON(w, http.StatusInternalServerError, "failed to update step")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (h *LevelHandler) DeleteStep(w http.ResponseWriter, r *http.Request) {
+	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
+	if err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid step id")
+		return
+	}
+
+	if err := h.levelService.DeleteStep(stepID); err != nil {
+		errorJSON(w, http.StatusInternalServerError, "failed to delete step")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
+}
+
+func (h *LevelHandler) UpsertDialog(w http.ResponseWriter, r *http.Request) {
+	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
+	if err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid step id")
+		return
+	}
+
+	var input struct {
+		Steps json.RawMessage `json:"steps"`
+	}
+	if err := readJSON(r, &input); err != nil {
+		errorJSON(w, http.StatusBadRequest, "invalid input")
+		return
+	}
+
+	if err := h.levelService.UpsertDialog(stepID, input.Steps); err != nil {
+		errorJSON(w, http.StatusInternalServerError, "failed to save dialog")
+		return
+	}
+
+	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
