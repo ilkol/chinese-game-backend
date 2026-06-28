@@ -41,6 +41,7 @@ type Level struct {
 	Steps         []LevelStep `json:"steps"`
 	CreatedAt     time.Time   `json:"created_at" db:"created_at"`
 	BackgroundSrc string      `json:"background_src" db:"background_src"`
+	PlanetImgSrc  string      `json:"planet_img_src" db:"planet_img_src"`
 }
 
 type LevelStepType string

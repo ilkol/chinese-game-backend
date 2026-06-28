@@ -1,0 +1,1 @@
+ALTER TABLE levels ADD COLUMN planet_img_src VARCHAR(255);
