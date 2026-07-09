@@ -19,6 +19,13 @@ func NewLevelHandler(service *service.LevelService) *LevelHandler {
 	return &LevelHandler{service}
 }
 
+// GetAll godoc
+// @Summary Get all levels
+// @Description Retrieve a list of all levels, optionally including their steps
+// @Tags levels
+// @Success	200	{array}		domain.Level
+// @Failure	500	{object}	ErrorResponse
+// @Router	/level [get]
 func (h *LevelHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	withSteps := r.URL.Query().Get("with_steps") == "true"
 

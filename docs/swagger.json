@@ -93,9 +93,148 @@
                     }
                 }
             }
+        },
+        "/level": {
+            "get": {
+                "description": "Retrieve a list of all levels, optionally including their steps",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Get all levels",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/chinese-game-backend_internal_domain.Level"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "chinese-game-backend_internal_domain.DialogStepItem": {
+            "type": "object",
+            "properties": {
+                "bg": {
+                    "type": "string"
+                },
+                "emotion": {
+                    "type": "string"
+                },
+                "speaker": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "chinese-game-backend_internal_domain.Level": {
+            "type": "object",
+            "properties": {
+                "background_src": {
+                    "type": "string"
+                },
+                "color": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "icon": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "order_index": {
+                    "type": "integer"
+                },
+                "planet_img_src": {
+                    "type": "string"
+                },
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/chinese-game-backend_internal_domain.LevelStep"
+                    }
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "chinese-game-backend_internal_domain.LevelStep": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "description": {
+                    "type": "string"
+                },
+                "dialog": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/chinese-game-backend_internal_domain.DialogStepItem"
+                    }
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_completed": {
+                    "type": "boolean"
+                },
+                "level_id": {
+                    "type": "integer"
+                },
+                "order_index": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/chinese-game-backend_internal_domain.LevelStepType"
+                }
+            }
+        },
+        "chinese-game-backend_internal_domain.LevelStepType": {
+            "type": "string",
+            "enum": [
+                "theory",
+                "quiz",
+                "final",
+                "dialog",
+                "categorization",
+                "tone_listening",
+                "planet_click",
+                "planet_matching"
+            ],
+            "x-enum-varnames": [
+                "LevelStepThoery",
+                "LevelStepQuiz",
+                "LevelStepFinal",
+                "LevelStepDialog",
+                "LevelStepCategoriz",
+                "LevelStepToneListen",
+                "LevelStepPlanetClick",
+                "LevelStepPlanetMatch"
+            ]
+        },
         "internal_transport_http.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -115,6 +254,9 @@
         "internal_transport_http.signUpInput": {
             "type": "object",
             "properties": {
+                "invite_code": {
+                    "type": "string"
+                },
                 "password": {
                     "type": "string"
                 },
