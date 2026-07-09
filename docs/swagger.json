@@ -295,6 +295,110 @@
                 }
             }
         },
+        "/progress": {
+            "post": {
+                "description": "Mark a step as completed for the authenticated user",
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Update user progress for a specific step",
+                "parameters": [
+                    {
+                        "description": "Step ID",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.completeStepInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Step marked as completed"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/levels": {
+            "get": {
+                "description": "Retrieve a list of level IDs that the authenticated user has completed",
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Get completed levels for the authenticated user",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "integer"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/progress/levels/{level_id}": {
+            "get": {
+                "description": "Determine if the authenticated user has completed a specific level",
+                "tags": [
+                    "Progress"
+                ],
+                "summary": "Check if a level is completed for the authenticated user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Level ID",
+                        "name": "level_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "boolean"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/step/{step_id}/dialog": {
             "put": {
                 "description": "Create or update the dialog for a specific step",
@@ -465,6 +569,14 @@
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_transport_http.completeStepInput": {
+            "type": "object",
+            "properties": {
+                "step_id": {
+                    "type": "integer"
                 }
             }
         },

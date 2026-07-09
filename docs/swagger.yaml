@@ -84,6 +84,11 @@ definitions:
       error:
         type: string
     type: object
+  internal_transport_http.completeStepInput:
+    properties:
+      step_id:
+        type: integer
+    type: object
   internal_transport_http.loginResponse:
     properties:
       token:
@@ -300,6 +305,74 @@ paths:
       summary: Update a step for a level
       tags:
       - levels
+  /progress:
+    post:
+      description: Mark a step as completed for the authenticated user
+      parameters:
+      - description: Step ID
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http.completeStepInput'
+      responses:
+        "204":
+          description: Step marked as completed
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Update user progress for a specific step
+      tags:
+      - Progress
+  /progress/levels:
+    get:
+      description: Retrieve a list of level IDs that the authenticated user has completed
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: integer
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Get completed levels for the authenticated user
+      tags:
+      - Progress
+  /progress/levels/{level_id}:
+    get:
+      description: Determine if the authenticated user has completed a specific level
+      parameters:
+      - description: Level ID
+        in: path
+        name: level_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: boolean
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Check if a level is completed for the authenticated user
+      tags:
+      - Progress
   /step/{step_id}/dialog:
     put:
       description: Create or update the dialog for a specific step
