@@ -3,6 +3,7 @@ package app
 import (
 	"chinese-game-backend/internal/config"
 	"chinese-game-backend/internal/domain"
+	middlewares "chinese-game-backend/internal/middleware"
 	"chinese-game-backend/internal/repository"
 	"chinese-game-backend/internal/service"
 	handlers "chinese-game-backend/internal/transport/http"
@@ -62,7 +63,7 @@ func (app *App) Run() error {
 
 	router := chi.NewRouter()
 
-	router.Use(middleware.Logger)
+	router.Use(middlewares.StructuredLogger())
 	router.Use(middleware.Recoverer)
 
 	router.Use(cors.New(cors.Options{
