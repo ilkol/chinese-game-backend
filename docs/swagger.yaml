@@ -98,6 +98,13 @@ definitions:
       username:
         type: string
     type: object
+  internal_transport_http.upsertDialogInput:
+    properties:
+      steps:
+        items:
+          type: integer
+        type: array
+    type: object
 host: localhost:5000
 info:
   contact: {}
@@ -175,6 +182,155 @@ paths:
           schema:
             $ref: '#/definitions/internal_transport_http.ErrorResponse'
       summary: Get all levels
+      tags:
+      - levels
+  /level/{id}:
+    get:
+      description: Retrieve a specific level by its ID, including its steps
+      parameters:
+      - description: Level ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chinese-game-backend_internal_domain.Level'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Get level by ID
+      tags:
+      - levels
+  /level/{id}/step:
+    post:
+      description: Add a new step to a specific level
+      parameters:
+      - description: Level ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Step data
+        in: body
+        name: step
+        required: true
+        schema:
+          $ref: '#/definitions/chinese-game-backend_internal_domain.LevelStep'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/chinese-game-backend_internal_domain.LevelStep'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Create a new step for a level
+      tags:
+      - levels
+  /level/{id}/step/{step_id}:
+    delete:
+      description: Remove an existing step of a specific level
+      parameters:
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Delete a step for a level
+      tags:
+      - levels
+    put:
+      description: Update an existing step of a specific level
+      parameters:
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      - description: Level ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Updated step data
+        in: body
+        name: step
+        required: true
+        schema:
+          $ref: '#/definitions/chinese-game-backend_internal_domain.LevelStep'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Update a step for a level
+      tags:
+      - levels
+  /step/{step_id}/dialog:
+    put:
+      description: Create or update the dialog for a specific step
+      parameters:
+      - description: Step ID
+        in: path
+        name: step_id
+        required: true
+        type: integer
+      - description: Dialog steps
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/internal_transport_http.upsertDialogInput'
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_transport_http.ErrorResponse'
+      summary: Upsert dialog for a step
       tags:
       - levels
 securityDefinitions:

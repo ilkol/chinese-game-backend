@@ -119,6 +119,231 @@
                     }
                 }
             }
+        },
+        "/level/{id}": {
+            "get": {
+                "description": "Retrieve a specific level by its ID, including its steps",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Get level by ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Level ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chinese-game-backend_internal_domain.Level"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/level/{id}/step": {
+            "post": {
+                "description": "Add a new step to a specific level",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Create a new step for a level",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Level ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Step data",
+                        "name": "step",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/chinese-game-backend_internal_domain.LevelStep"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/chinese-game-backend_internal_domain.LevelStep"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/level/{id}/step/{step_id}": {
+            "put": {
+                "description": "Update an existing step of a specific level",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Update a step for a level",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Level ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated step data",
+                        "name": "step",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/chinese-game-backend_internal_domain.LevelStep"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Remove an existing step of a specific level",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Delete a step for a level",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/step/{step_id}/dialog": {
+            "put": {
+                "description": "Create or update the dialog for a specific step",
+                "tags": [
+                    "levels"
+                ],
+                "summary": "Upsert dialog for a step",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Step ID",
+                        "name": "step_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Dialog steps",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.upsertDialogInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -262,6 +487,17 @@
                 },
                 "username": {
                     "type": "string"
+                }
+            }
+        },
+        "internal_transport_http.upsertDialogInput": {
+            "type": "object",
+            "properties": {
+                "steps": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         }

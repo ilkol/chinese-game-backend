@@ -38,6 +38,14 @@ func (h *LevelHandler) GetAll(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, levels)
 }
 
+// GetByID godoc
+// @Summary Get level by ID
+// @Description Retrieve a specific level by its ID, including its steps
+// @Tags levels
+// @Param	id	path	int	true	"Level ID"
+// @Success	200	{object}	domain.Level
+// @Failure	404	{object}	ErrorResponse
+// @Router	/level/{id} [get]
 func (h *LevelHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	levelID, err := strconv.Atoi(idStr)
@@ -57,6 +65,16 @@ func (h *LevelHandler) GetByID(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, level)
 }
 
+// CreateStep godoc
+// @Summary Create a new step for a level
+// @Description Add a new step to a specific level
+// @Tags levels
+// @Param	id	path	int	true	"Level ID"
+// @Param	step	body	domain.LevelStep	true	"Step data"
+// @Success	201	{object}	domain.LevelStep
+// @Failure	400	{object}	ErrorResponse
+// @Failure	500	{object}	ErrorResponse
+// @Router	/level/{id}/step [post]
 func (h *LevelHandler) CreateStep(w http.ResponseWriter, r *http.Request) {
 	idStr := chi.URLParam(r, "id")
 	levelID, err := strconv.Atoi(idStr)
@@ -80,6 +98,17 @@ func (h *LevelHandler) CreateStep(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, step)
 }
 
+// UpdateStep godoc
+// @Summary Update a step for a level
+// @Description Update an existing step of a specific level
+// @Tags levels
+// @Param	step_id	path	int	true	"Step ID"
+// @Param	id	path	int	true	"Level ID"
+// @Param	step	body	domain.LevelStep	true	"Updated step data"
+// @Success	200	{object}	map[string]string
+// @Failure	400	{object}	ErrorResponse
+// @Failure	500	{object}	ErrorResponse
+// @Router	/level/{id}/step/{step_id} [put]
 func (h *LevelHandler) UpdateStep(w http.ResponseWriter, r *http.Request) {
 	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
 	if err != nil {
@@ -101,6 +130,15 @@ func (h *LevelHandler) UpdateStep(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
+// DeleteStep godoc
+// @Summary Delete a step for a level
+// @Description Remove an existing step of a specific level
+// @Tags levels
+// @Param	step_id	path	int	true	"Step ID"
+// @Success	200	{object}	map[string]string
+// @Failure	400	{object}	ErrorResponse
+// @Failure	500	{object}	ErrorResponse
+// @Router	/level/{id}/step/{step_id} [delete]
 func (h *LevelHandler) DeleteStep(w http.ResponseWriter, r *http.Request) {
 	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
 	if err != nil {
@@ -116,6 +154,20 @@ func (h *LevelHandler) DeleteStep(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"status": "ok"})
 }
 
+type upsertDialogInput struct {
+	Steps json.RawMessage `json:"steps"`
+}
+
+// UpsertDialog godoc
+// @Summary Upsert dialog for a step
+// @Description Create or update the dialog for a specific step
+// @Tags levels
+// @Param	step_id	path	int	true	"Step ID"
+// @Param	input	body	upsertDialogInput	true	"Dialog steps"
+// @Success	200	{object}	map[string]string
+// @Failure	400	{object}	ErrorResponse
+// @Failure	500	{object}	ErrorResponse
+// @Router	/step/{step_id}/dialog [put]
 func (h *LevelHandler) UpsertDialog(w http.ResponseWriter, r *http.Request) {
 	stepID, err := strconv.Atoi(chi.URLParam(r, "step_id"))
 	if err != nil {
@@ -123,9 +175,7 @@ func (h *LevelHandler) UpsertDialog(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var input struct {
-		Steps json.RawMessage `json:"steps"`
-	}
+	var input upsertDialogInput
 	if err := readJSON(r, &input); err != nil {
 		errorJSON(w, http.StatusBadRequest, "invalid input")
 		return
