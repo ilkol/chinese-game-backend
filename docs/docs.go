@@ -304,6 +304,11 @@ const docTemplate = `{
         },
         "/progress": {
             "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Mark a step as completed for the authenticated user",
                 "tags": [
                     "Progress"
@@ -341,6 +346,11 @@ const docTemplate = `{
         },
         "/progress/levels": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Retrieve a list of level IDs that the authenticated user has completed",
                 "tags": [
                     "Progress"
@@ -367,6 +377,11 @@ const docTemplate = `{
         },
         "/progress/levels/{level_id}": {
             "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
                 "description": "Determine if the authenticated user has completed a specific level",
                 "tags": [
                     "Progress"
@@ -443,6 +458,113 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teacher/invite-code": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve the invite code for the authenticated teacher",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get the invite code for the authenticated teacher",
+                "responses": {
+                    "200": {
+                        "description": "Invite code",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/teacher/students": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Retrieve a list of students associated with the authenticated teacher",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get students associated with the authenticated teacher",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/internal_transport_http.studentProgressResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/join": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Join a student to a teacher using an invite code",
+                "tags": [
+                    "User"
+                ],
+                "summary": "Join a student to a teacher using an invite code",
+                "parameters": [
+                    {
+                        "description": "Invite Code",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.joinStudentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Student successfully joined the teacher"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_transport_http.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/internal_transport_http.ErrorResponse"
                         }
@@ -587,6 +709,14 @@ const docTemplate = `{
                 }
             }
         },
+        "internal_transport_http.joinStudentInput": {
+            "type": "object",
+            "properties": {
+                "invite_code": {
+                    "type": "string"
+                }
+            }
+        },
         "internal_transport_http.loginResponse": {
             "type": "object",
             "properties": {
@@ -602,6 +732,32 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "internal_transport_http.studentProgressResponse": {
+            "type": "object",
+            "properties": {
+                "coins": {
+                    "type": "integer"
+                },
+                "completedSteps": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "lastLevelTitle": {
+                    "type": "string"
+                },
+                "totalSteps": {
+                    "type": "integer"
+                },
+                "updatedAt": {
                     "type": "string"
                 },
                 "username": {

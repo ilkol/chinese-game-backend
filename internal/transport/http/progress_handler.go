@@ -28,7 +28,7 @@ type completeStepInput struct {
 // @Failure	400	{object}	ErrorResponse
 // @Failure	500	{object}	ErrorResponse
 // @Router	/progress [post]
-// @Authorization Bearer
+// @Security BearerAuth
 func (h *ProgressHandler) CompleteStep(w http.ResponseWriter, r *http.Request) {
 	var input completeStepInput
 
@@ -55,7 +55,7 @@ func (h *ProgressHandler) CompleteStep(w http.ResponseWriter, r *http.Request) {
 // @Success	200	{object}	[]int
 // @Failure	500	{object}	ErrorResponse
 // @Router	/progress/levels [get]
-// @Authorization Bearer
+// @Security BearerAuth
 func (h *ProgressHandler) GetCompletedLevels(w http.ResponseWriter, r *http.Request) {
 	userID := r.Context().Value(userContextKey).(int)
 	levelIDs, err := h.progressService.GetCompletedLevels(userID)
@@ -77,7 +77,7 @@ func (h *ProgressHandler) GetCompletedLevels(w http.ResponseWriter, r *http.Requ
 // @Failure	400	{object}	ErrorResponse
 // @Failure	500	{object}	ErrorResponse
 // @Router	/progress/levels/{level_id} [get]
-// @Authorization Bearer
+// @Security BearerAuth
 func (h *ProgressHandler) IsLevelCompleted(w http.ResponseWriter, r *http.Request) {
 	levelIDStr := r.URL.Query().Get("level_id")
 	levelID, err := strconv.Atoi(levelIDStr)
