@@ -2,3 +2,5 @@
 .vscode
 
 server.exe
+
+api/gen/

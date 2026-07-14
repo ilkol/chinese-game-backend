@@ -10,6 +10,42 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+  rest-server:
+    build:
+      context: .
+      dockerFile: DockerFile
+    container_name: chinese_game_api
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: 5432
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 5000
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["go", "run", "cmd/server/main.go"]
+  level-service:
+    build:
+      context: .
+      dockerFile: DockerFile
+    container_name: chinese_game_level_service
+    ports:
+      - "50051:50051"
+    environment:
+      DB_HOST: postgres
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_NAME: ${DB_NAME}
+      DB_PORT: 5432
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["go", "run", "cmd/level-service/main.go"]
 
 volumes:
   postgres_data:
