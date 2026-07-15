@@ -1,4 +1,4 @@
-package levelService
+package main
 
 import (
 	levelv1 "chinese-game-backend/api/gen/level"

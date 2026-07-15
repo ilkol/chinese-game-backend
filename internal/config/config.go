@@ -16,19 +16,22 @@ type Config struct {
 	DB_Name string
 
 	JWTSecret string
+
+	LEVEL_SERVICE_ADDRES string
 }
 
 func Load() *Config {
 	godotenv.Load()
 
 	return &Config{
-		Port:      getEnv("PORT", "8080"),
-		DB_User:   getEnv("DB_USER", "app"),
-		DB_Pass:   getEnv("DB_PASSWORD", ""),
-		DB_Host:   getEnv("DB_HOST", "localhost"),
-		DB_Port:   getEnv("DB_PORT", "5432"),
-		DB_Name:   getEnv("DB_NAME", "db"),
-		JWTSecret: getEnv("JWT_SECRET", ""),
+		Port:                 getEnv("PORT", "8080"),
+		DB_User:              getEnv("DB_USER", "app"),
+		DB_Pass:              getEnv("DB_PASSWORD", ""),
+		DB_Host:              getEnv("DB_HOST", "localhost"),
+		DB_Port:              getEnv("DB_PORT", "5432"),
+		DB_Name:              getEnv("DB_NAME", "db"),
+		JWTSecret:            getEnv("JWT_SECRET", ""),
+		LEVEL_SERVICE_ADDRES: getEnv("LEVEL_SERVICE_ADDRES", "localhost:50051"),
 	}
 }
 
