@@ -12,7 +12,7 @@ import (
 )
 
 func RunMigrations(dbURL string) error {
-	m, err := migrate.New("file://migrations", dbURL)
+	m, err := migrate.New("file:///app/migrations", dbURL)
 	if err != nil {
 		return fmt.Errorf("Ошибка создания мигратора: %w", err)
 	}

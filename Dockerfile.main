@@ -11,6 +11,8 @@ RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 WORKDIR /app
 COPY --from=builder /app/rest-server .
+COPY --from=builder /src/migrations /app/migrations
+RUN chown -R appuser:appgroup /app
 USER appuser
 EXPOSE 5000
 CMD ["./rest-server"]
