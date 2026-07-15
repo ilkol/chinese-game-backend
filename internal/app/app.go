@@ -31,7 +31,7 @@ import (
 type App struct {
 	Config          *config.Config
 	DB              *sqlx.DB
-	GrpcLevelClient *levelv1.LevelServiceClient
+	GrpcLevelClient levelv1.LevelServiceClient
 }
 
 func NewApp(cfg *config.Config) (*App, error) {
@@ -51,26 +51,42 @@ func NewApp(cfg *config.Config) (*App, error) {
 	if err != nil {
 		return nil, fmt.Errorf("Ошибка инициализации gRPC клиента %v", err)
 	}
-	log.Panicf("gRPC клиент подключен")
+	log.Printf("gRPC клиент подключен")
 
 	return &App{cfg, db, GrpcLevelClient}, nil
 }
 
-func newGrpcLevelClient(cfg *config.Config) (*levelv1.LevelServiceClient, error) {
+func newGrpcLevelClient(cfg *config.Config) (levelv1.LevelServiceClient, error) {
 	grpcAddr := cfg.LEVEL_SERVICE_ADDRES
 
-	con, err := grpc.Dial(
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	con, err := grpc.NewClient(
 		grpcAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
-		grpc.WithTimeout(5*time.Second),
 	)
+
 	if err != nil {
 		return nil, fmt.Errorf("Не удалось подключиться к gRPC серверу: %v", err)
 	}
 
+	con.Connect()
+
+	for {
+		state := con.GetState()
+		if state.String() == "READY" {
+			break // Успешно подключились!
+		}
+
+		// На каждом шаге цикла проверяем, не истекли ли наши 5 секунд
+		if !con.WaitForStateChange(ctx, state) {
+			return nil, fmt.Errorf("таймаут подключения к gRPC серверу: %w", ctx.Err())
+		}
+	}
+
 	client := levelv1.NewLevelServiceClient(con)
-	return &client, nil
+	return client, nil
 }
 
 func (app *App) Run() error {
