@@ -1,0 +1,49 @@
+name: Chinese Game CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    run-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15-alpine
+        env:
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: test_db
+        ports:
+          - 5432:5432
+        options:
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v4
+        
+        - name: Set up Go
+          uses: actions/setup-go@v4
+          with:
+            go-version: '1.26.2'
+            cache: true
+
+        - name: Run Go tests
+          env:
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_USER: test_user
+            DB_PASS: test_password
+            DB_NAME: test_db
+          run: go test -v ./...
+
+        - name: Test build main server
+          run: docker build -t chinese-game-api:test -f Dockerfile.main .
+        
+        - name: Test build level service
+          run: docker build -t chinese-game-level-serivce:test -f Dockerfile.level .
