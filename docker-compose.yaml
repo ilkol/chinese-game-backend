@@ -27,13 +27,12 @@ services:
     environment:
       DB_HOST: db
       DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       DB_PORT: 5432
       JWT_SECRET: ${JWT_SECRET}
       PORT: 5000
-      GOCACHE: /go-cache
-      GOMODCACHE: /go-mod-cache
+      LEVEL_SERVICE_ADDRES: "level-service:50051"
     depends_on:
       db:
         condition: service_healthy
@@ -48,7 +47,7 @@ services:
     environment:
       DB_HOST: db
       DB_USER: ${DB_USER}
-      DB_PASS: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD}
       DB_NAME: ${DB_NAME}
       DB_PORT: 5432
       GOCACHE: /go-cache
